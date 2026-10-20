@@ -1,0 +1,76 @@
+<!doctype html>
+<script>const NEW_ORIGIN = 'https://kirakira-tcg.github.io/';</script>
+<html lang="de"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#1a1240">
+<title>Kirakira TCG ist umgezogen</title>
+<!-- v187 (Nr. 143): Weiterleitungsseite für die alte Adresse jayezhdtwitch.github.io/kartenapp/ (auch als 404.html). Keine externen Dateien, kein fremder Dienst.
+     Die Sammlung (localStorage „kartenapp_v1“, gleiches Format wie „Export“) geht nur im #-Teil an die neue Adresse – der #-Teil wird nie an einen Server geschickt. Nie im ?-Teil. -->
+<style>
+:root{--bg:#140e33;--card:#231a52;--tx:#fff8ec;--mu:#b7aee0;--ac:#ff5fa2;--ac2:#ffd84d;--ac3:#5ab8ff;--bd:#3d3180}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--tx);font:17px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
+main{max-width:480px;margin:0 auto;padding:28px 16px calc(env(safe-area-inset-bottom,0px) + 24px);display:flex;flex-direction:column;gap:14px;min-height:100vh;min-height:100dvh}
+.ico{font-size:56px;line-height:1;text-align:center;margin-top:8px}
+h1{margin:0;font-size:26px;line-height:1.25;text-align:center;font-weight:900}
+h1 span{background:linear-gradient(90deg,var(--ac2),var(--ac),var(--ac3));-webkit-background-clip:text;background-clip:text;color:transparent}
+p{margin:0;overflow-wrap:anywhere}.c{text-align:center}.mu{color:var(--mu);font-size:15px}
+.box{background:var(--card);border:1px solid var(--bd);border-radius:18px;padding:14px 16px}
+.cnt{font-size:19px;text-align:center;color:#ffe9a3}
+.btn{display:flex;align-items:center;justify-content:center;width:100%;min-height:60px;padding:12px 16px;border-radius:18px;border:0;font:inherit;font-size:21px;font-weight:900;text-decoration:none;cursor:pointer;touch-action:manipulation;background:var(--ac2);color:#2a1766;box-shadow:0 6px 20px rgba(255,216,77,.25)}
+.btn:active{transform:scale(.98)}.btn[disabled]{opacity:.7}
+.btn2{display:flex;align-items:center;justify-content:center;width:100%;min-height:52px;padding:10px 14px;border-radius:16px;font:inherit;font-size:16px;font-weight:700;cursor:pointer;background:transparent;color:#d6d0f0;border:1px solid rgba(214,208,240,.4);text-decoration:none}
+.warn{background:rgba(255,93,108,.14);border:1px solid rgba(255,93,108,.5);border-radius:14px;padding:12px 14px}
+.adr{font-weight:800;color:#fff;word-break:break-all}
+[hidden]{display:none!important}
+footer{margin-top:auto;padding-top:18px;color:var(--mu);font-size:13px;text-align:center}
+</style></head><body>
+<main>
+ <div class="ico" aria-hidden="true">🏠✨</div>
+ <h1><span>Kirakira TCG</span> ist umgezogen</h1>
+ <p class="c">Die App hat eine neue Adresse:<br><span class="adr" id="adr"></span></p>
+ <div id="hasData" hidden>
+  <p class="cnt" id="cnt"></p>
+  <p class="c mu">Ein Tipp – und deine Karten, Binder und Wunschliste sind an der neuen Adresse. Alles bleibt in deinem Browser, nichts geht an einen Server.</p>
+ </div>
+ <button type="button" class="btn" id="go" hidden>Jetzt umziehen</button>
+ <a class="btn" id="link" hidden>Zur neuen Adresse</a>
+ <p class="warn" id="err" role="alert" hidden></p>
+ <button type="button" class="btn2" id="dl" hidden>📄 Sicherung als Datei herunterladen</button>
+ <p class="c mu" id="dlhint" hidden>Die Datei kannst du in der neuen App unter <b>Mehr → Erweitert → Import</b> laden. Deine Karten dort bleiben erhalten, die App führt alles zusammen.</p>
+ <footer>Kirakira TCG ist ein inoffizielles Fanprojekt. © Nintendo, Creatures, GAME FREAK und The Pokémon Company. Preise ohne Gewähr.</footer>
+</main>
+<script>
+(function(){'use strict';
+ var KEY='kartenapp_v1',UIKEY='kartenapp_ui',MAXH=1900000;/* Chrome erlaubt ca. 2 MB Adresslänge; darüber nur die Datei */
+ var $=function(i){return document.getElementById(i)};
+ var target=NEW_ORIGIN.replace(/[?#].*$/,'');if(!/\/$/.test(target))target+='/';
+ $('adr').textContent=target.replace(/^https?:\/\//,'').replace(/\/$/,'');
+ /* alte App aufräumen: Service Worker der alten App (/kartenapp/) abmelden und ihre Caches löschen, damit die installierte alte App nicht weiter v186 zeigt. Daten (localStorage) bleiben als Sicherheit liegen. */
+ try{if(navigator.serviceWorker&&navigator.serviceWorker.getRegistrations)navigator.serviceWorker.getRegistrations().then(function(rs){rs.forEach(function(r){try{if(new URL(r.scope).pathname.indexOf('/kartenapp/')===0)r.unregister()}catch(e){}})}).catch(function(){})}catch(e){}
+ try{if(window.caches)caches.keys().then(function(ks){ks.forEach(function(k){if(k.indexOf('kartenapp-')===0)caches.delete(k)})}).catch(function(){})}catch(e){}
+ var S=null;try{S=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){S=null}
+ var col=S&&Array.isArray(S.collection)?S.collection:[],wl=S&&Array.isArray(S.wishlist)?S.wishlist:[],bn=S&&Array.isArray(S.binders)?S.binders:[];
+ var has=!!S&&(col.length>0||wl.length>0);
+ function err(t){var e=$('err');e.innerHTML=t;e.hidden=false}
+ var today=function(){return new Date().toISOString().slice(0,10)};
+ /* Sicherung – genau das Format von „Export (JSON)“ der App: kartenapp-JJJJ-MM-TT.json */
+ function download(){try{var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(S,null,2)],{type:'application/json'}));a.download='kartenapp-'+today()+'.json';document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},4000);$('dlhint').hidden=false}catch(e){err('Die Datei konnte nicht erstellt werden.')}}
+ function b64u(u){var s='',C=0x8000;for(var i=0;i<u.length;i+=C)s+=String.fromCharCode.apply(null,u.subarray(i,i+C));return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
+ function payload(){var d={};for(var k in S)if(Object.prototype.hasOwnProperty.call(S,k))d[k]=S[k];try{var ui=JSON.parse(localStorage.getItem(UIKEY)||'null');if(ui&&typeof ui==='object')d._ui={big:ui.big===true,hc:ui.hc===true}}catch(e){}
+  var bytes=new TextEncoder().encode(JSON.stringify(d));
+  if(window.CompressionStream){return new Response(new Blob([bytes]).stream().pipeThrough(new CompressionStream('deflate-raw'))).arrayBuffer().then(function(b){return '1d.'+b64u(new Uint8Array(b))},function(){return '1j.'+b64u(bytes)})}
+  return Promise.resolve('1j.'+b64u(bytes))}
+ if(!has){var l=$('link');l.href=target;l.hidden=false;return}
+ /* v187 (Nr. 147): Zahl wie in der App – verschiedene Karten und Stück (Summe der Mengen). Nur Zahlen, per textContent. */
+ var n=col.length,q=0;col.forEach(function(c){var x=Math.round(+(c&&c.qty));q+=x>=1?Math.min(x,9999):1});
+ var de=function(x){return x.toLocaleString('de-DE')};
+ var cb=document.createElement('b');cb.textContent=!n?'keine Karten':(n===1?'1 Karte':de(n)+' verschiedene Karten')+' ('+(q===1?'1 Stück':de(q)+' Stück')+')';
+ $('cnt').textContent='';$('cnt').appendChild(cb);$('cnt').appendChild(document.createTextNode((bn.length?' · '+bn.length+' Binder':'')+(wl.length?' · '+wl.length+' auf der Wunschliste':'')));
+ $('hasData').hidden=false;$('go').hidden=false;$('dl').hidden=false;$('dl').onclick=download;
+ $('go').onclick=function(){var b=$('go');b.disabled=true;b.textContent='Einen Moment …';
+  payload().then(function(p){if(p.length>MAXH){b.hidden=true;err('<b>Bitte Sicherung als Datei nutzen.</b> Deine Sammlung ist zu groß für den direkten Umzug. Tippe unten auf „Sicherung als Datei herunterladen“ und lade sie in der neuen App.');return}
+   location.assign(target+'#umzug='+p)}).catch(function(){b.hidden=true;err('<b>Bitte Sicherung als Datei nutzen.</b> Der direkte Umzug hat nicht geklappt.')})};
+})();
+</script>
+</body></html>
